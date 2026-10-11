@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "typeRoots": ["/tmp/bittybox-reveal-qa/node_modules/@types", "./node_modules/@types"],
+    "types": ["node", "react", "react-dom"],
+    "baseUrl": ".",
+    "paths": {
+      "react": ["/tmp/bittybox-reveal-qa/node_modules/@types/react"],
+      "react/*": ["/tmp/bittybox-reveal-qa/node_modules/@types/react/*"],
+      "react-dom": ["/tmp/bittybox-reveal-qa/node_modules/@types/react-dom"],
+      "react-dom/*": ["/tmp/bittybox-reveal-qa/node_modules/@types/react-dom/*"]
+    }
+  },
+  "include": [
+    "src/components/CeremonyBuilder.tsx",
+    "src/locks/combiner.ts",
+    "src/locks/registry.ts",
+    "src/locks/ceremony.ts",
+    "src/components/LockGate.tsx"
+  ],
+  "exclude": ["src/locks/types-react-shim.d.ts"]
+}

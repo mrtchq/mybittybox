@@ -1,0 +1,10 @@
+{
+  "name": "Bitty Box",
+  "description": "Bitty Box encodes full HTML, markdown, and interactive apps into compressed URL fragments. Built for autonomous AI agents, LLM toolchains, and human creators.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

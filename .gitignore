@@ -1,0 +1,26 @@
+# ── Dependencies ──
+node_modules/
+.pnp/
+.pnp.js
+
+# ── Build output (served from /var/www/bittybox.org/docs; not source) ──
+dist/
+dist-*/
+
+# ── Secrets / env (NEVER commit) ──
+.env
+.env.*
+env
+*.local
+
+# ── Local test harness (playwright smoke scripts w/ hardcoded chrome path) ──
+.hermes-final-slide-diagnose.cjs
+.hermes-final-slide-smoke.cjs
+
+# ── Logs / OS ──
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
