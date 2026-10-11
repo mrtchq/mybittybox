@@ -6,13 +6,16 @@ burn-after-reading, invite-code, puzzle, payment, and more). The unlock rules
 live in the URL fragment — no centralized database.
 
 ## Stack
-- **Frontend**: React 18 + Vite + TypeScript, `motion/react`, lucide-react.
+- **Frontend**: React 19 + Vite + TypeScript, `motion/react`, lucide-react.
 - **Locks engine**: `src/locks/` — a uniform `LockPlugin` registry + ceremony
   (combiner) tree, fully serializable to a URL-safe config.
 - **Backend**: `/var/www/bittybox-api` (Express) serving the API + MCP and the
   static SPA.
-- **Deploy**: `npm run build` in this repo → copy `dist/*` into
-  `/var/www/bittybox.org/docs` → restart `bittybox-api.service`.
+- **Deploy**: `bash scripts/deploy.sh staging|prod` — builds, snapshots, and
+  promotes only the static files, then verifies served == built by hash.
+  **Never copy `dist/*` wholesale:** `dist/` also contains `server.cjs` +
+  `server.cjs.map` (the AI Studio dev server), which must never be published
+  into a public docroot.
 
 ## Build
 ```bash
