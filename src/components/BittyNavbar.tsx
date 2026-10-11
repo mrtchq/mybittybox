@@ -1,4 +1,5 @@
 import React from 'react';
+import { FEATURES } from '../config/features';
 import { 
   Box, 
   Code, 
@@ -191,17 +192,19 @@ export const BittyNavbar: React.FC<BittyNavbarProps> = ({
             <span className="relative z-10">LOCK LAB</span>
           </motion.button>
 
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.96 }}
-            id="nav-voice-ai-btn"
-            onClick={() => onOpenVoiceAI?.()}
-            className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-cyan-200 hover:text-white bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-500/40 shadow-[0_0_12px_rgba(0,242,255,0.2)]"
-            title="Chat with Voice AI (Gemini Live)"
-          >
-            <Mic className="w-3.5 h-3.5 relative z-10 text-cyan-300 animate-pulse" />
-            <span className="relative z-10">VOICE AI</span>
-          </motion.button>
+          {FEATURES.voiceAI && (
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
+              id="nav-voice-ai-btn"
+              onClick={() => onOpenVoiceAI?.()}
+              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-cyan-200 hover:text-white bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-500/40 shadow-[0_0_12px_rgba(0,242,255,0.2)]"
+              title="Chat with Voice AI (Gemini Live)"
+            >
+              <Mic className="w-3.5 h-3.5 relative z-10 text-cyan-300 animate-pulse" />
+              <span className="relative z-10">VOICE AI</span>
+            </motion.button>
+          )}
         </nav>
 
         {/* Right Section: Mode Switcher + 24h Pass + Tools Deck Trigger */}
@@ -351,15 +354,17 @@ export const BittyNavbar: React.FC<BittyNavbarProps> = ({
             <span className="relative z-10 text-[10px] sm:text-[11px]">LOCK LAB</span>
           </motion.button>
 
-          <motion.button
-            whileTap={{ scale: 0.96 }}
-            id="mobile-nav-voice-ai-btn"
-            onClick={() => onOpenVoiceAI?.()}
-            className={`relative flex items-center justify-center gap-1 py-1 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-cyan-300 hover:text-cyan-100`}
-          >
-            <Mic className="w-3.5 h-3.5 shrink-0 relative z-10 text-cyan-300 animate-pulse" />
-            <span className="relative z-10 text-[10px] sm:text-[11px]">VOICE</span>
-          </motion.button>
+          {FEATURES.voiceAI && (
+            <motion.button
+              whileTap={{ scale: 0.96 }}
+              id="mobile-nav-voice-ai-btn"
+              onClick={() => onOpenVoiceAI?.()}
+              className={`relative flex items-center justify-center gap-1 py-1 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-cyan-300 hover:text-cyan-100`}
+            >
+              <Mic className="w-3.5 h-3.5 shrink-0 relative z-10 text-cyan-300 animate-pulse" />
+              <span className="relative z-10 text-[10px] sm:text-[11px]">VOICE</span>
+            </motion.button>
+          )}
         </nav>
       </div>
     </header>

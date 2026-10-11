@@ -27,6 +27,7 @@ import { AnimatedSplash } from './components/AnimatedSplash';
 import { CyberScrambleText } from './components/CyberScrambleText';
 import { Zap, RefreshCw, Mic } from 'lucide-react';
 import { VoiceAIAssistantModal } from './components/VoiceAIAssistantModal';
+import { FEATURES } from './config/features';
 import { useProStatus } from './hooks/useProStatus';
 import { useAccount } from './hooks/useAccount';
 import { AccountDashboard } from './components/AccountDashboard';
@@ -1304,28 +1305,32 @@ export default function App() {
       />
       </LockLabErrorBoundary>
 
-      {/* Floating Quick Voice AI Button */}
-      <motion.button
-        id="floating-voice-ai-btn"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.94 }}
-        onClick={() => setIsVoiceModalOpen(true)}
-        className="fixed bottom-5 right-5 z-40 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-cyan-950/90 via-purple-950/90 to-cyan-950/90 hover:from-cyan-900/90 hover:to-purple-900/90 text-white font-mono text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(0,242,255,0.35)] border border-cyan-400/50 backdrop-blur-md cursor-pointer group transition-all"
-        title="Open Voice AI (Gemini Live & Search Grounding)"
-      >
-        <span className="relative flex h-2 w-2">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-300"></span>
-        </span>
-        <Mic className="w-3.5 h-3.5 text-cyan-300 group-hover:scale-110 transition-transform" />
-        <span className="hidden sm:inline tracking-wider text-cyan-200">TALK TO VOICE AI</span>
-      </motion.button>
+      {FEATURES.voiceAI && (
+        <>
+          {/* Floating Quick Voice AI Button */}
+          <motion.button
+            id="floating-voice-ai-btn"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setIsVoiceModalOpen(true)}
+            className="fixed bottom-5 right-5 z-40 px-3.5 py-2.5 rounded-full bg-gradient-to-r from-cyan-950/90 via-purple-950/90 to-cyan-950/90 hover:from-cyan-900/90 hover:to-purple-900/90 text-white font-mono text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(0,242,255,0.35)] border border-cyan-400/50 backdrop-blur-md cursor-pointer group transition-all"
+            title="Open Voice AI (Gemini Live & Search Grounding)"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-300"></span>
+            </span>
+            <Mic className="w-3.5 h-3.5 text-cyan-300 group-hover:scale-110 transition-transform" />
+            <span className="hidden sm:inline tracking-wider text-cyan-200">TALK TO VOICE AI</span>
+          </motion.button>
 
-      {/* Conversational Voice AI Assistant Modal (Gemini Live + Search Grounding) */}
-      <VoiceAIAssistantModal
-        isOpen={isVoiceModalOpen}
-        onClose={() => setIsVoiceModalOpen(false)}
-      />
+          {/* Conversational Voice AI Assistant Modal (Gemini Live + Search Grounding) */}
+          <VoiceAIAssistantModal
+            isOpen={isVoiceModalOpen}
+            onClose={() => setIsVoiceModalOpen(false)}
+          />
+        </>
+      )}
     </div>
   );
 }
