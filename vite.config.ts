@@ -5,6 +5,11 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // VITE_BASE lets one source tree deploy either at the domain root ("/")
+    // or under a sub-path (e.g. "/studio/") alongside the legacy static site.
+    // A sub-path build rewrites asset URLs to /studio/assets/... so they can
+    // never collide with the static site's own prefixes.
+    base: process.env.VITE_BASE || '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
