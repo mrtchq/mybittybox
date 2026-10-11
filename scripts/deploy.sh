@@ -37,6 +37,29 @@ npm run build
 DIST="$REPO/dist"
 [ -f "$DIST/index.html" ] || { echo "ERROR: dist/index.html missing — build failed." >&2; exit 1; }
 
+echo "=== pre-flight: what this build does NOT provide ==="
+if [ -d "$DOCROOT" ]; then
+  removed=0
+  PRESERVE="altaychat-room.html"
+  while IFS= read -r rel; do
+    [ -z "$rel" ] && continue
+    case " $PRESERVE " in *" $rel "*) continue ;; esac
+    if [ ! -e "$DIST/$rel" ]; then
+      echo "  would be REMOVED: $rel"
+      removed=$((removed + 1))
+    fi
+  done < <(cd "$DOCROOT" && find . -type f -not -path './.*' | sed 's|^\./||')
+  echo "  files that would be removed: $removed"
+  if [ "$removed" -gt 0 ] && [ "${2:-}" != "--replace" ]; then
+    echo "" >&2
+    echo "REFUSING: this would remove $removed file(s) not present in the build." >&2
+    echo "That is a wholesale replacement, not a promotion. Review the list above." >&2
+    echo "If it is genuinely intended, re-run:" >&2
+    echo "    bash scripts/deploy.sh $TARGET --replace" >&2
+    exit 3
+  fi
+fi
+
 echo "=== snapshot ==="
 TS="$(date -u +%Y%m%dT%H%M%SZ)"
 SNAP="/root/backups/${TARGET}-pre-deploy-$TS.tar.gz"
