@@ -95,7 +95,10 @@ if [ -d "$DOCDIR" ]; then
     fi
   done < <(cd "$DOCDIR" && find . -type f -not -path './.*' | sed 's|^\./||')
   echo "  files that would be removed: $removed"
-  if [ "$removed" -gt 0 ] && [ "$REPLACE" != 1 ]; then
+  # The guard protects a ROOT docroot, which other applications share.
+  # A sub-path directory is owned entirely by this build, so stale files
+  # there (e.g. superseded hashed bundles) are expected and simply pruned.
+  if [ "$removed" -gt 0 ] && [ "$REPLACE" != 1 ] && [ -z "$SUBPATH" ]; then
     echo "" >&2
     echo "REFUSING: this would remove $removed file(s) not present in the build." >&2
     echo "That is a wholesale replacement, not a promotion. Review the list above." >&2

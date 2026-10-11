@@ -849,7 +849,7 @@ export default function App() {
     setCurrentSessionId(tplSessionId);
     setContentWithHistory(tpl.content, true);
     setMetadata(tplMeta);
-    window.history.replaceState(null, '', '/#/edit');
+    window.history.replaceState(null, '', `${import.meta.env.BASE_URL}#/edit`);
     setCurrentView('editor');
   };
 
@@ -936,7 +936,7 @@ export default function App() {
     setCurrentSessionId(newId);
     resetContentHistory(newSession.content);
     setMetadata(newSession.metadata);
-    window.history.replaceState(null, '', '/#/edit');
+    window.history.replaceState(null, '', `${import.meta.env.BASE_URL}#/edit`);
     setCurrentView('editor');
   };
 
@@ -954,13 +954,13 @@ export default function App() {
     if (newMeta.title) {
       setMetadata(prev => ({ ...prev, ...newMeta }));
     }
-    window.history.replaceState(null, '', '/#/edit');
+    window.history.replaceState(null, '', `${import.meta.env.BASE_URL}#/edit`);
     setCurrentView('editor');
   };
 
   // Return from viewer to the home splash
   const handleGoToHomePage = () => {
-    window.history.replaceState(null, '', '/');
+    window.history.replaceState(null, '', import.meta.env.BASE_URL);
     setCurrentView('editor');
   };
 

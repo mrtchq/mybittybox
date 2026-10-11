@@ -114,7 +114,7 @@ export const BittyNavbar: React.FC<BittyNavbarProps> = ({
             <div className="relative w-8 h-8 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-cyan-400 via-fuchsia-500 to-indigo-600 p-[2px] shadow-[0_0_20px_rgba(0,242,255,0.45)] group transition-all duration-300 hover:shadow-[0_0_28px_rgba(255,0,222,0.6)]">
               <div className="w-full h-full bg-[#090314]/90 rounded-[10px] flex items-center justify-center overflow-hidden p-1">
                 <motion.img
-                  src="/bittybox-logo.png"
+                  src={`${import.meta.env.BASE_URL}bittybox-logo.png`}
                   alt="Bitty Box Logo"
                   whileHover={{ rotate: [0, -5, 5, 0], scale: 1.15 }}
                   transition={{ duration: 0.35 }}

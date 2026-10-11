@@ -434,7 +434,7 @@ export const AnimatedSplash: React.FC<AnimatedSplashProps> = ({ onComplete }) =>
             />
             <div className="w-full h-full bg-[#090314]/90 rounded-[10px] flex items-center justify-center overflow-hidden p-1">
               <motion.img
-                src="/bittybox-logo.png"
+                src={`${import.meta.env.BASE_URL}bittybox-logo.png`}
                 alt="Bitty Box Logo"
                 whileHover={{ rotate: [0, -5, 5, 0], scale: 1.15 }}
                 transition={{ duration: 0.35 }}

@@ -23,6 +23,27 @@ export function useEdgeSwipe({
 }: EdgeSwipeConfig) {
   const touchStartRef = useRef<{ x: number; y: number; time: number } | null>(null);
 
+  // Callers pass inline arrow functions and booleans, so these values have a new
+  // identity on every render. Holding the latest values in refs lets the window
+  // listeners be registered ONCE instead of being torn down and re-added on
+  // every single render of the host component (which was the previous behaviour
+  // and turned each render into 2 removeEventListener + 2 addEventListener calls).
+  const handlersRef = useRef({
+    onSwipeFromLeft,
+    onSwipeFromRight,
+    onSwipeLeftToClose,
+    onSwipeRightToClose,
+  });
+  handlersRef.current = {
+    onSwipeFromLeft,
+    onSwipeFromRight,
+    onSwipeLeftToClose,
+    onSwipeRightToClose,
+  };
+
+  const configRef = useRef({ isLeftOpen, isRightOpen, edgeThreshold, swipeThreshold });
+  configRef.current = { isLeftOpen, isRightOpen, edgeThreshold, swipeThreshold };
+
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
@@ -47,6 +68,10 @@ export function useEdgeSwipe({
       // Ignore slow drags or predominantly vertical gestures (scrolls)
       if (deltaTime > 800) return;
       if (Math.abs(deltaY) > Math.abs(deltaX) * 1.2) return;
+
+      const { isLeftOpen, isRightOpen, edgeThreshold, swipeThreshold } = configRef.current;
+      const { onSwipeFromLeft, onSwipeFromRight, onSwipeLeftToClose, onSwipeRightToClose } =
+        handlersRef.current;
 
       const screenWidth = window.innerWidth;
 
@@ -89,14 +114,5 @@ export function useEdgeSwipe({
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [
-    onSwipeFromLeft,
-    onSwipeFromRight,
-    onSwipeLeftToClose,
-    onSwipeRightToClose,
-    isLeftOpen,
-    isRightOpen,
-    edgeThreshold,
-    swipeThreshold,
-  ]);
+  }, []); // registered once; latest callbacks/flags are read from refs
 }

@@ -59,7 +59,7 @@ export const AboutModal: React.FC<AboutModalProps> = ({ onOpenEditor, onStartTou
           >
             <div className="w-full h-full bg-[#090314]/90 rounded-[14px] flex items-center justify-center overflow-hidden p-2">
               <img
-                src="/bittybox-logo.png"
+                src={`${import.meta.env.BASE_URL}bittybox-logo.png`}
                 alt="Bitty Box Logo"
                 className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(0,242,255,0.8)]"
               />
