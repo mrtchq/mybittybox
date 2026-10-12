@@ -3,18 +3,17 @@
 #
 #   bash scripts/deploy.sh staging             -> replaces test.bittybox.org root
 #   bash scripts/deploy.sh prod --replace      -> replaces bittybox.org root
-#   bash scripts/deploy.sh staging studio      -> test.bittybox.org/studio/
-#   bash scripts/deploy.sh prod studio         -> bittybox.org/studio/
 #
-# A sub-path deploy (e.g. "studio") is the SAFE coexistence mode: it builds the
-# SPA with base=/<subpath>/ so its asset URLs can never collide with the legacy
-# static site, and it wipes ONLY <docroot>/<subpath> — the rest of the docroot
-# is untouched.
+# The "studio" sub-path target is RETIRED (2026-10-12). /studio/ used to hold a
+# second copy of this SPA beside the legacy front door; once the front door
+# itself became this SPA, the sub-tree could only drift out of step, so nginx now
+# 301s /studio and /studio/* to / on both hosts. Do not redeploy into it.
 #
-# A root deploy replaces the whole docroot and is therefore refused when the
-# build does not provide files that are already there, unless --replace is
-# given. That guard exists because bittybox.org currently serves a different
-# application (a vanilla-JS/Quill multi-page site) from the same directory.
+# The root deploy no longer overwrites another application: bittybox.org's
+# docroot now holds this SPA plus the /privacy and /terms pages and their
+# assets. The guard below is kept as a change-detector — it still refuses a root
+# deploy that would silently drop files already in the docroot unless --replace
+# is given, so a legal page or an icon can never disappear unnoticed.
 #
 # Promotes ONLY static assets. dist/server.cjs is the AI Studio dev server and
 # is never published into a docroot.
