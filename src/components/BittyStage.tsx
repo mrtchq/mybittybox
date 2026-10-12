@@ -975,7 +975,90 @@ export const BittyStage: React.FC<BittyStageProps> = ({
       </div>
 
       {/* =========================================================================
-          2. THE CENTRAL BITTY STAGE WORKSPACE CANVAS
+          2. PERSISTENT SURROUNDING STATUS & STEP CONTROLS (STAGE HUD)
+         ========================================================================= */}
+      <div className="w-full bg-[#070419]/90 border border-cyan-500/25 rounded-2xl px-4 py-2.5 sm:py-3 shadow-[0_0_30px_rgba(0,0,0,0.7)] backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shrink-0">
+        {/* Left: Active Box Status */}
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 text-cyan-300 font-bold truncate">
+            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
+            <span className="truncate">{boxTitle || 'My Page'}</span>
+          </div>
+          <span className="text-zinc-600">&bull;</span>
+          <span className="text-[10px] text-cyan-400/80 font-mono shrink-0">
+            {boxContent.length} chars
+          </span>
+          <div className="hidden md:flex items-center gap-1 shrink-0">
+            {isPasscodeActive && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-fuchsia-950 text-fuchsia-300 border border-fuchsia-500/40">PIN</span>
+            )}
+            {isTimeLockActive && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">Timer</span>
+            )}
+            {isAccessLimitActive && (
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">Views</span>
+            )}
+          </div>
+        </div>
+
+        {/* Center: Guided Stage Navigation Buttons */}
+        <div className="flex items-center gap-2">
+          {prevMode && (
+            <button
+              type="button"
+              onClick={() => handleModeSwitch(prevMode)}
+              className="py-1 px-2.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span>Prev</span>
+            </button>
+          )}
+
+          {nextMode && (
+            <button
+              type="button"
+              onClick={() => handleModeSwitch(nextMode)}
+              className="py-1 px-2.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Right: Reset & Audio Controls */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleStartOver}
+            className="text-[10px] text-rose-400/80 hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
+            title="Reset and start over with clean starter"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Start Over</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              initAudio();
+              setSoundEnabled(!soundEnabled);
+            }}
+            className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
+              soundEnabled
+                ? 'bg-cyan-950/60 border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/50'
+                : 'bg-black/40 border-cyan-500/20 text-cyan-600 hover:text-cyan-400'
+            }`}
+            title={soundEnabled ? 'Mute Sound FX' : 'Enable Sound FX'}
+            aria-label="Toggle audio effects"
+          >
+            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      </div>
+
+      {/* =========================================================================
+          3. THE CENTRAL BITTY STAGE WORKSPACE CANVAS
              Stationary bounding box: only the content inside morphs in place!
          ========================================================================= */}
       <div className="relative w-full min-h-[460px] md:min-h-[520px] bg-[#07041a]/90 border border-cyan-500/30 rounded-2xl p-4 sm:p-5 md:p-6 shadow-[0_0_40px_rgba(0,0,0,0.85),inset_0_0_25px_rgba(0,242,255,0.06)] backdrop-blur-2xl flex flex-col justify-between overflow-hidden">
@@ -1236,110 +1319,16 @@ export const BittyStage: React.FC<BittyStageProps> = ({
                   </div>
                 </div>
 
-                {/* Right: Quick Inspector & Lock Highlights */}
-                <div className="md:col-span-4 flex flex-col justify-between gap-3">
-                  <div className="space-y-2">
-                    <div className="text-[11px] font-bold tracking-wider text-cyan-300 flex items-center justify-between">
-                      <span>PAGE PROTECTION</span>
-                      <span className="text-[9px] text-cyan-400/60 uppercase">CLICK TO CONFIGURE</span>
-                    </div>
-
-                    {/* Passcode Tile */}
-                    <button
-                      type="button"
-                      onClick={() => handleModeSwitch('passwordLock')}
-                      className={`w-full text-left p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                        isPasscodeActive
-                          ? 'bg-fuchsia-950/40 border-fuchsia-500/50 hover:bg-fuchsia-900/50 shadow-[0_0_10px_rgba(217,70,239,0.3)]'
-                          : 'bg-black/30 border-zinc-800/80 hover:border-fuchsia-500/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Key className={`w-4 h-4 shrink-0 ${isPasscodeActive ? 'text-fuchsia-300' : 'text-zinc-600'}`} />
-                        <div className="min-w-0">
-                          <div className="font-bold text-[11px] text-cyan-100 truncate">Secret PIN</div>
-                          <div className="text-[10px] text-zinc-400 truncate">
-                            {isPasscodeActive ? `${passwordValue.length} Digits (Protected)` : 'Turn on to lock with PIN'}
-                          </div>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${
-                        isPasscodeActive ? 'bg-fuchsia-950 text-fuchsia-300 border-fuchsia-500' : 'bg-zinc-900 text-zinc-600 border-zinc-800'
-                      }`}>
-                        {isPasscodeActive ? 'ON' : 'OFF'}
-                      </span>
-                    </button>
-
-                    {/* Time Lock Tile */}
-                    <button
-                      type="button"
-                      onClick={() => handleModeSwitch('timeLock')}
-                      className={`w-full text-left p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                        isTimeLockActive
-                          ? 'bg-amber-950/40 border-amber-500/50 hover:bg-amber-900/50 shadow-[0_0_10px_rgba(245,158,11,0.3)]'
-                          : 'bg-black/30 border-zinc-800/80 hover:border-amber-500/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Clock className={`w-4 h-4 shrink-0 ${isTimeLockActive ? 'text-amber-300' : 'text-zinc-600'}`} />
-                        <div className="min-w-0">
-                          <div className="font-bold text-[11px] text-cyan-100 truncate">Time Limit</div>
-                          <div className="text-[10px] text-zinc-400 truncate">{timeLockSummary}</div>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${
-                        isTimeLockActive ? 'bg-amber-950 text-amber-300 border-amber-500' : 'bg-zinc-900 text-zinc-600 border-zinc-800'
-                      }`}>
-                        {isTimeLockActive ? 'ON' : 'OFF'}
-                      </span>
-                    </button>
-
-                    {/* View Limits Tile */}
-                    <button
-                      type="button"
-                      onClick={() => handleModeSwitch('accessLimitLock')}
-                      className={`w-full text-left p-2.5 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer ${
-                        isAccessLimitActive
-                          ? 'bg-emerald-950/40 border-emerald-500/50 hover:bg-emerald-900/50 shadow-[0_0_10px_rgba(0,255,204,0.3)]'
-                          : 'bg-black/30 border-zinc-800/80 hover:border-emerald-500/40'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <Gauge className={`w-4 h-4 shrink-0 ${isAccessLimitActive ? 'text-emerald-300' : 'text-zinc-600'}`} />
-                        <div className="min-w-0">
-                          <div className="font-bold text-[11px] text-cyan-100 truncate">Visitor Limit</div>
-                          <div className="text-[10px] text-zinc-400 truncate">
-                            {isAccessLimitActive ? `${accessLimitMaxOpens.toLocaleString()} Max Views` : 'Unlimited Views'}
-                          </div>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${
-                        isAccessLimitActive ? 'bg-emerald-950 text-emerald-300 border-emerald-500' : 'bg-zinc-900 text-zinc-600 border-zinc-800'
-                      }`}>
-                        {isAccessLimitActive ? 'ON' : 'OFF'}
-                      </span>
-                    </button>
-                  </div>
-
-                  {/* Stage Jump Actions */}
-                  <div className="space-y-2 pt-2 border-t border-cyan-500/20">
-                    <button
-                      type="button"
-                      onClick={() => handleModeSwitch('preview')}
-                      className="w-full py-2 px-3 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/80 border border-cyan-500/40 text-cyan-200 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5 text-cyan-400" />
-                      <span>PREVIEW PAGE</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleModeSwitch('review')}
-                      className="w-full py-2 px-3 rounded-lg bg-gradient-to-r from-cyan-600 to-fuchsia-600 hover:from-cyan-500 hover:to-fuchsia-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,242,255,0.4)] transition-all cursor-pointer"
-                    >
-                      <span>REVIEW & CREATE LINK</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                {/* Right: Review & Create Link Action */}
+                <div className="md:col-span-4 flex flex-col justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleModeSwitch('review')}
+                    className="w-full py-2.5 px-3 rounded-lg bg-gradient-to-r from-cyan-600 to-fuchsia-600 hover:from-cyan-500 hover:to-fuchsia-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,242,255,0.4)] transition-all cursor-pointer"
+                  >
+                    <span>REVIEW & CREATE LINK</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </motion.div>
             )}
@@ -1913,7 +1902,7 @@ export const BittyStage: React.FC<BittyStageProps> = ({
                       srcDoc={stagePreviewHtml}
                       title="Bitty Stage Live Preview"
                       className="w-full h-full border-0 bg-white"
-                      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads"
+                      sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
                     />
                   </div>
                 </div>
@@ -2289,89 +2278,6 @@ export const BittyStage: React.FC<BittyStageProps> = ({
           </div>
         </div>
       )}
-
-      {/* =========================================================================
-          3. PERSISTENT SURROUNDING STATUS & STEP CONTROLS (BOTTOM HUD)
-         ========================================================================= */}
-      <div className="w-full bg-[#070419]/90 border border-cyan-500/25 rounded-2xl px-4 py-2.5 sm:py-3 shadow-[0_0_30px_rgba(0,0,0,0.7)] backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shrink-0">
-        {/* Left: Active Box Status */}
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="flex items-center gap-1.5 text-cyan-300 font-bold truncate">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse shrink-0" />
-            <span className="truncate">{boxTitle || 'My Page'}</span>
-          </div>
-          <span className="text-zinc-600">&bull;</span>
-          <span className="text-[10px] text-cyan-400/80 font-mono shrink-0">
-            {boxContent.length} chars
-          </span>
-          <div className="hidden md:flex items-center gap-1 shrink-0">
-            {isPasscodeActive && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-fuchsia-950 text-fuchsia-300 border border-fuchsia-500/40">PIN</span>
-            )}
-            {isTimeLockActive && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/40">Timer</span>
-            )}
-            {isAccessLimitActive && (
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">Views</span>
-            )}
-          </div>
-        </div>
-
-        {/* Center: Guided Stage Navigation Buttons */}
-        <div className="flex items-center gap-2">
-          {prevMode && (
-            <button
-              type="button"
-              onClick={() => handleModeSwitch(prevMode)}
-              className="py-1 px-2.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
-            >
-              <ChevronLeft className="w-3.5 h-3.5" />
-              <span>Prev</span>
-            </button>
-          )}
-
-          {nextMode && (
-            <button
-              type="button"
-              onClick={() => handleModeSwitch(nextMode)}
-              className="py-1 px-2.5 rounded-lg bg-cyan-950/60 hover:bg-cyan-900/60 border border-cyan-500/30 text-cyan-300 text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
-            >
-              <span>Next</span>
-              <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-
-        {/* Right: Reset & Audio Controls */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            onClick={handleStartOver}
-            className="text-[10px] text-rose-400/80 hover:text-rose-300 flex items-center gap-1 transition-colors cursor-pointer"
-            title="Reset and start over with clean starter"
-          >
-            <RotateCcw className="w-3 h-3" />
-            <span>Start Over</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              initAudio();
-              setSoundEnabled(!soundEnabled);
-            }}
-            className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
-              soundEnabled
-                ? 'bg-cyan-950/60 border-cyan-500/40 text-cyan-300 hover:bg-cyan-900/50'
-                : 'bg-black/40 border-cyan-500/20 text-cyan-600 hover:text-cyan-400'
-            }`}
-            title={soundEnabled ? 'Mute Sound FX' : 'Enable Sound FX'}
-            aria-label="Toggle audio effects"
-          >
-            {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
-          </button>
-        </div>
-      </div>
 
       {/* QR Code Modal */}
       {isQrModalOpen && (

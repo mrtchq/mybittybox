@@ -718,7 +718,7 @@ export const PreviewDropdownPanel: React.FC<PreviewDropdownPanelProps> = ({
                       srcDoc={renderedHtml}
                       title="Live Code Preview"
                       className="w-full h-full border-0 bg-white rounded-b-lg shadow-inner flex-1"
-                      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads"
+                      sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
                     />
                   </div>
                 )}

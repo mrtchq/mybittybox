@@ -855,7 +855,7 @@ const BittyRendererSession: React.FC<BittyRendererProps> = ({
         onLoad={hasCeremony ? (event) => event.currentTarget.focus() : undefined}
         title={metadata.title || 'Bitty Box'}
         className="w-full h-full border-0 m-0 p-0 block bg-white"
-        sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-modals allow-downloads"
+        sandbox="allow-scripts allow-forms allow-popups allow-modals allow-downloads"
       />
     </div>
   );
