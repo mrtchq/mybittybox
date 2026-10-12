@@ -81,13 +81,37 @@ if [ -n "$SUBPATH" ]; then
   echo "  assets correctly scoped to /$SUBPATH/"
 fi
 
+# Paths in a ROOT docroot that this build does not own. A root promote wipes the
+# docroot before copying dist/, so anything not in dist/ must be carried across
+# explicitly or it disappears from a live site. The legal pages matter most:
+# /privacy and /terms are served by explicit Express routes that read these
+# docroot files, so losing them does not 404 — it silently serves the SPA shell
+# with a healthy 200, which is exactly how a legal page goes missing unnoticed.
+PRESERVE_PATHS=(
+  altaychat-room.html   # staging-only test page owned by another service
+  privacy.html
+  terms.html
+  LICENSE.txt
+  cognitive-theme.css
+  favicon.svg
+  theme-fonts
+)
+
+is_preserved() {
+  local rel="$1" p
+  for p in "${PRESERVE_PATHS[@]}"; do
+    [ "$rel" = "$p" ] && return 0
+    case "$rel" in "$p"/*) return 0 ;; esac
+  done
+  return 1
+}
+
 echo "=== pre-flight: what this build does NOT provide ==="
 if [ -d "$DOCDIR" ]; then
   removed=0
-  PRESERVE="altaychat-room.html"
   while IFS= read -r rel; do
     [ -z "$rel" ] && continue
-    case " $PRESERVE " in *" $rel "*) continue ;; esac
+    is_preserved "$rel" && continue
     if [ ! -e "$DIST/$rel" ]; then
       echo "  would be REMOVED: $rel"
       removed=$((removed + 1))
@@ -118,8 +142,8 @@ fi
 # Preserve pages owned by other live services on this host (root deploys only).
 KEEP="$(mktemp -d)"
 if [ -z "$SUBPATH" ]; then
-  for page in altaychat-room.html; do
-    [ -f "$DOCROOT/$page" ] && cp -p "$DOCROOT/$page" "$KEEP/$page"
+  for p in "${PRESERVE_PATHS[@]}"; do
+    [ -e "$DOCROOT/$p" ] && cp -a "$DOCROOT/$p" "$KEEP/" && echo "  carry across: $p"
   done
 fi
 
@@ -128,7 +152,7 @@ mkdir -p "$DOCDIR"
 find "$DOCDIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} +
 cp -a "$DIST"/. "$DOCDIR"/
 rm -f "$DOCDIR/server.cjs" "$DOCDIR/server.cjs.map"
-cp -p "$KEEP"/* "$DOCDIR"/ 2>/dev/null || true
+cp -a "$KEEP"/. "$DOCDIR"/ 2>/dev/null || true
 rm -rf "$KEEP"
 
 find "$DOCDIR" -type d -exec chmod 755 {} +
@@ -137,6 +161,20 @@ find "$DOCDIR" -type f -exec chmod 644 {} +
 if [ -z "$SUBPATH" ]; then
   echo "=== restart $SERVICE ==="
   systemctl restart "$SERVICE"
+  # The verification below curls the live host on the next line. Without a
+  # readiness wait the first requests land inside the restart window and come
+  # back 502, which aborts the run under `set -e` and reports a failure on a
+  # perfectly healthy deploy. Poll the real health endpoint instead.
+  ready=no
+  for _ in $(seq 1 30); do
+    if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 "$HOST/api/health" || true)" = 200 ]; then
+      ready=yes
+      break
+    fi
+    sleep 1
+  done
+  echo "  backend ready: $ready"
+  [ "$ready" = yes ] || { echo "WARNING: health endpoint not 200 after 30s" >&2; }
 else
   echo "=== nginx location for /$SUBPATH/ ==="
   if ! grep -q "location \^~ /$SUBPATH/" "$NGINX_CONF"; then
@@ -153,7 +191,9 @@ URLPREFIX=""
 while IFS= read -r rel; do
   [ -z "$rel" ] && continue
   b="$(sha256sum "$DIST/$rel" | cut -d' ' -f1)"
-  s="$(curl -fsS --max-time 25 "$HOST$URLPREFIX/$rel" | sha256sum | cut -d' ' -f1)"
+  # `|| true` keeps a transient fetch failure from aborting the whole run under
+  # `set -e`; it is reported as a DIFF instead, which is what it is.
+  s="$(curl -fsS --max-time 25 "$HOST$URLPREFIX/$rel" 2>/dev/null | sha256sum | cut -d' ' -f1 || true)"
   if [ "$b" = "$s" ]; then
     echo "  MATCH $rel"
   else
@@ -161,6 +201,33 @@ while IFS= read -r rel; do
     fail=1
   fi
 done < <(cd "$DIST" && find . -type f ! -name 'server.cjs*' | sed 's|^\./||')
+
+echo
+echo "=== verify: operator-owned pages survived the promote ==="
+# A legal page that reverts to the SPA shell returns a healthy 200, so byte
+# equality alone is not enough — the served page must differ from index.html.
+SHELL_SHA="$(sha256sum "$DIST/index.html" | cut -d' ' -f1)"
+for page in privacy.html terms.html; do
+  if [ ! -f "$DOCROOT/$page" ]; then
+    echo "  MISSING $page on disk"
+    fail=1
+    continue
+  fi
+  b="$(sha256sum "$DOCROOT/$page" | cut -d' ' -f1)"
+  s="$(curl -fsS --max-time 25 "$HOST/$page" | sha256sum | cut -d' ' -f1)"
+  if [ "$s" != "$b" ]; then
+    echo "  DIFF  /$page served != disk"
+    fail=1
+  elif [ "$s" = "$SHELL_SHA" ]; then
+    echo "  FAIL  /$page is serving the SPA shell, not the legal page"
+    fail=1
+  else
+    echo "  OK    /$page is the real page ($(wc -c < "$DOCROOT/$page") bytes)"
+  fi
+  # the extension-less clean URLs are explicit Express routes, not static files
+  code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$HOST/${page%.html}")"
+  [ "$code" = 200 ] && echo "  OK    /${page%.html} -> $code" || { echo "  FAIL  /${page%.html} -> $code"; fail=1; }
+done
 
 echo
 echo "=== backend health ==="
