@@ -182,14 +182,19 @@ export const BittyNavbar: React.FC<BittyNavbarProps> = ({
           </motion.button>
 
           <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.96 }}
+            whileHover={{}}
+            whileTap={{}}
             id="nav-lock-lab-btn"
-            onClick={() => onOpenLockLab?.()}
-            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-purple-200/70 hover:text-cyan-200`}
+            disabled
+            aria-disabled="true"
+            title="Coming Soon"
+            className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold tracking-wide transition-colors opacity-60 cursor-not-allowed text-purple-200/50`}
           >
-            <Lock className="w-3.5 h-3.5 relative z-10 text-cyan-400" />
+            <Lock className="w-3.5 h-3.5 relative z-10 text-cyan-400/50" />
             <span className="relative z-10">LOCK LAB</span>
+            <span className="relative z-10 text-[8px] font-mono font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40">
+              Coming Soon
+            </span>
           </motion.button>
 
           {FEATURES.voiceAI && (
@@ -345,13 +350,18 @@ export const BittyNavbar: React.FC<BittyNavbarProps> = ({
           </motion.button>
 
           <motion.button
-            whileTap={{ scale: 0.96 }}
+            whileTap={{}}
             id="mobile-nav-lock-lab-btn"
-            onClick={() => onOpenLockLab?.()}
-            className={`relative flex items-center justify-center gap-1 py-1 rounded-lg text-xs font-semibold tracking-wide transition-colors cursor-pointer text-purple-200/70 hover:text-cyan-200`}
+            disabled
+            aria-disabled="true"
+            title="Coming Soon"
+            className={`relative flex items-center justify-center gap-1 py-1 px-1 rounded-lg text-xs font-semibold tracking-wide transition-colors opacity-60 cursor-not-allowed text-purple-200/50`}
           >
-            <Lock className="w-3.5 h-3.5 shrink-0 relative z-10 text-cyan-400" />
+            <Lock className="w-3.5 h-3.5 shrink-0 relative z-10 text-cyan-400/50" />
             <span className="relative z-10 text-[10px] sm:text-[11px]">LOCK LAB</span>
+            <span className="relative z-10 text-[8px] font-mono font-bold uppercase tracking-wider px-1 py-px rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/40">
+              Soon
+            </span>
           </motion.button>
 
           {FEATURES.voiceAI && (
